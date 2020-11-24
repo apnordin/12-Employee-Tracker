@@ -200,4 +200,20 @@ function addDept() {
         })
 }
 
+function viewEmployees() {
+    var query = "SELECT employees.first_name, employees.last_name, role.id, role.title, role.salary FROM employees INNER JOIN role ON (employees.role_id = role.id)"
+
+    connection.query(query, function (err, employeeresponse) {
+        console.table(employeeresponse);
+
+    });
+}
+
+function viewDepts() {
+    connection.query("SELECT * FROM department", function (err, response) {
+        if (err) throw err;
+        console.table(response);
+    });
+}
+
 start();
