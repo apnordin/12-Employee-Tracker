@@ -18,6 +18,9 @@ npm i
 ```
 
 ## Usage
+
+First, open MySQL Workbench and copy all code from emanagerDB.sql into a new SQL tab and execute the code in MySQL.
+
 Enter your password for MySQL Workbench into the password entry on line 9 of index.js, install dependencies, then run node index.js. It is advised to start by adding departments, then roles, then employees.
 
 To watch a video demonstration, click [here](https://drive.google.com/file/d/12AFLv5fvPBI79HChmfuqSm0oToI8EDoK/view).
