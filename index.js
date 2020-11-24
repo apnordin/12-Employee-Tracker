@@ -122,38 +122,81 @@ function addEmployee() {
 }
 
 function addRole() {
+    connection.query("SELECT * FROM department", function (err, deptresults) {
+        if (err) throw err;
+        inquirer
+            .prompt([
+                {
+                    name: "rolename",
+                    type: "input",
+                    message: "What is the name of the new role?"
+                },
+                {
+                    name: "salary",
+                    type: "input",
+                    message: "What is the salary?",
+                    validate: (value) => {
+                        if (isNaN(value) === false) {
+                            return true;
+                        }
+                        return false;
+                    },
+                },
+                {
+                    name: "department",
+                    type: "list",
+                    message: "What department is this role in?",
+                    choices: function () {
+                        const deptChoiceArray = deptresults.map(deptresults => deptresults.dept_name)
+                        console.log(deptChoiceArray);
+                        return (deptChoiceArray);
+                    }
+                }
+            ])
+            .then(function (answer) {
+
+                for (var i = 0; i < deptresults.length; i++) {
+                    deptID = deptresults[i].id
+                }
+
+                connection.query(
+                    "INSERT INTO role SET ?",
+                    {
+                        title: answer.rolename,
+                        salary: answer.salary,
+                        department_id: deptID
+                    },
+                    function (err) {
+                        if (err) throw err;
+                        console.log("Your new role was added!");
+                        start();
+                    }
+                );
+            })
+    });
+}
+
+function addDept() {
     inquirer
         .prompt([
             {
-                name: "rolename",
+                name: "deptname",
                 type: "input",
-                message: "What is the name of the new role?"
-            },
-            {
-                name: "salary",
-                type: "input",
-                message: "What is the salary?",
-                validate: (value) => {
-                    if (isNaN(value) === false) {
-                        return true;
-                    }
-                    return false;
-                },
+                message: "What is the department's name?"
             }
         ])
         .then(function (answer) {
             connection.query(
-                "INSERT INTO role SET ?",
+                "INSERT INTO department SET ?",
                 {
-                    title: answer.rolename,
-                    salary: answer.salary
+                    dept_name: answer.deptname
                 },
                 function (err) {
                     if (err) throw err;
-                    console.log("Your new role was added!");
+                    console.log("Your new department was added!");
                     start();
                 }
-            );
+            )
         })
 }
 
