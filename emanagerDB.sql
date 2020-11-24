@@ -12,9 +12,9 @@ CREATE TABLE employees (
 );
 
 CREATE TABLE role (
-    id INT NOT NULL,
+    id INT AUTO_INCREMENT NOT NULL,
     title VARCHAR(30) NOT NULL,
-    salary DECIMAL(6,2) NOT NULL,
+    salary DECIMAL(10,2) NOT NULL,
     PRIMARY KEY (id)
 );
 

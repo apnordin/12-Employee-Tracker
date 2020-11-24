@@ -47,47 +47,98 @@ function start() {
 };
 
 function addEmployee() {
+    connection.query("SELECT * FROM role", function (err, results) {
+        if (err) throw err;
+
+        inquirer
+            .prompt([
+                {
+                    name: "firstName",
+                    type: "input",
+                    message: "What is your employee's first name?",
+                },
+                {
+                    name: "lastName",
+                    type: "input",
+                    message: "What is your employee's last name?",
+                },
+                {
+                    name: "role",
+                    type: "list",
+                    choices: function () {
+                        const roleChoiceArray = results.map(results => results.title);
+                        return roleChoiceArray;
+                    },
+                    message: "What is your employee's role?",
+                },
+                {
+                    name: "manager",
+                    type: "list",
+                    message: "Who is your employee's manager?",
+                    choices: ["1", "2"]
+                }
+            ])
+            .then(function (answer) {
+                var roleId;
+
+                for (var i = 0; i < results.length; i++) {
+                    roleId = results[i].id
+                }
+
+                console.log(roleId);
+
+                connection.query(
+                    "INSERT INTO employees SET ?",
+                    {
+                        first_name: answer.firstName,
+                        last_name: answer.lastName,
+                        role_id: roleId,
+                        manager_id: answer.manager,
+                    },
+                    function (err) {
+                        if (err) throw err;
+                        console.log("Your new employee was added!");
+                        start();
+                    }
+                );
+            });
+    });
+}
+
+function addRole() {
     inquirer
         .prompt([
             {
-                name: "firstName",
+                name: "rolename",
                 type: "input",
-                message: "What is your employee's first name?",
+                message: "What is the name of the new role?"
             },
             {
-                name: "lastName",
+                name: "salary",
                 type: "input",
-                message: "What is your employee's last name?",
-            },
-            {
-                name: "role",
-                type: "list",
-                message: "What is your employee's role?",
-                choices: ["1", "2"]
-            },
-            {
-                name: "manager",
-                type: "list",
-                message: "Who is your employee's manager?",
-                choices: ["1,", "2"]
+                message: "What is the salary?",
+                validate: (value) => {
+                    if (isNaN(value) === false) {
+                        return true;
+                    }
+                    return false;
+                },
             }
         ])
         .then(function (answer) {
             connection.query(
-                "INSERT INTO employees SET ?",
+                "INSERT INTO role SET ?",
                 {
-                    first_name: answer.firstName,
-                    last_name: answer.lastName,
-                    role_id: answer.role,
-                    manager_id: answer.manager,
+                    title: answer.rolename,
+                    salary: answer.salary
                 },
                 function (err) {
                     if (err) throw err;
-                    console.log("Your Employee was added!");
-                    start();
+                    console.log("Your new role was added!");
+                    // start();
                 }
             );
-        });
+        })
 }
 
 start();
