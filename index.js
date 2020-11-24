@@ -91,14 +91,17 @@ function addEmployee() {
                     var roleId;
 
                     for (var i = 0; i < roleresults.length; i++) {
-                        roleId = roleresults[i].id
+                        if (roleresults[i].title === answer.role) {
+                            roleId = roleresults[i].id
+                        }
                     }
 
                     if (answer.manager === "None") {
                         managerId = null
                     } else {
                         for (var i = 0; i < employeeresults.length; i++) {
-                            managerId = employeeresults[i].id
+                            if (employeeresults[i].first_name + " " + employeeresults[i].last_name === answer.manager)
+                                managerId = employeeresults[i].id
                         }
                     }
 
@@ -148,23 +151,26 @@ function addRole() {
                     message: "What department is this role in?",
                     choices: function () {
                         const deptChoiceArray = deptresults.map(deptresults => deptresults.dept_name)
-                        console.log(deptChoiceArray);
-                        return (deptChoiceArray);
+                        return deptChoiceArray;
                     }
                 }
             ])
             .then(function (answer) {
-
                 for (var i = 0; i < deptresults.length; i++) {
-                    deptID = deptresults[i].id
+                    if (deptresults[i].dept_name === answer.department) {
+                        deptId = deptresults[i].id
+                    }
                 }
+
+
+                console.log(deptId);
 
                 connection.query(
                     "INSERT INTO role SET ?",
                     {
                         title: answer.rolename,
                         salary: answer.salary,
-                        department_id: deptID
+                        department_id: deptId
                     },
                     function (err) {
                         if (err) throw err;
@@ -172,7 +178,7 @@ function addRole() {
                         start();
                     }
                 );
-            })
+            });
     });
 }
 
@@ -196,12 +202,12 @@ function addDept() {
                     console.log("Your new department was added!");
                     start();
                 }
-            )
-        })
+            );
+        });
 }
 
 function viewEmployees() {
-    var query = "SELECT employees.first_name, employees.last_name, role.id, role.title, role.salary FROM employees INNER JOIN role ON (employees.role_id = role.id)"
+    var query = "SELECT employees.first_name, employees.last_name, role.title, role.salary, department.dept_name FROM employees INNER JOIN role INNER JOIN department ON (employees.role_id = role.id AND role.department_id = department.id)"
 
     connection.query(query, function (err, employeeresponse) {
         console.table(employeeresponse);
