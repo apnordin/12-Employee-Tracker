@@ -215,6 +215,15 @@ function viewEmployees() {
     });
 }
 
+function viewRoles() {
+    var query = "SELECT role.title, role.salary, department.dept_name FROM role INNER JOIN department ON (role.department_id = department.id)"
+
+    connection.query(query, function (err, roleresponse) {
+        if (err) throw err;
+        console.table(roleresponse);
+    });
+}
+
 function viewDepts() {
     connection.query("SELECT * FROM department", function (err, response) {
         if (err) throw err;
