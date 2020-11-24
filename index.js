@@ -162,9 +162,6 @@ function addRole() {
                     }
                 }
 
-
-                console.log(deptId);
-
                 connection.query(
                     "INSERT INTO role SET ?",
                     {
@@ -210,8 +207,9 @@ function viewEmployees() {
     var query = "SELECT employees.first_name, employees.last_name, role.title, role.salary, department.dept_name FROM employees INNER JOIN role INNER JOIN department ON (employees.role_id = role.id AND role.department_id = department.id)"
 
     connection.query(query, function (err, employeeresponse) {
+        if (err) throw err;
         console.table(employeeresponse);
-
+        start()
     });
 }
 
@@ -221,6 +219,7 @@ function viewRoles() {
     connection.query(query, function (err, roleresponse) {
         if (err) throw err;
         console.table(roleresponse);
+        start();
     });
 }
 
@@ -228,6 +227,67 @@ function viewDepts() {
     connection.query("SELECT * FROM department", function (err, response) {
         if (err) throw err;
         console.table(response);
+        start();
+    });
+}
+
+function updateRole() {
+    connection.query("SELECT * FROM role", function (err, roleresults) {
+        if (err) throw err;
+        connection.query("SELECT * FROM employees", function (err, employeeresults) {
+            if (err) throw err;
+            inquirer
+                .prompt([
+                    {
+                        name: "whatEmployee",
+                        type: "list",
+                        message: "Which employee would you like to update?",
+                        choices: function () {
+                            const employeeChoices = employeeresults.map(employeeresults => employeeresults.first_name + " " + employeeresults.last_name)
+                            return (employeeChoices);
+                        }
+                    },
+                    {
+                        name: "whatRole",
+                        type: "list",
+                        message: "What is their new role?",
+                        choices: function () {
+                            const roleChoices = roleresults.map(roleresults => roleresults.title);
+                            return roleChoices;
+                        }
+                    }
+                ])
+                .then(function (answer) {
+
+                    for (var i = 0; i < employeeresults.length; i++) {
+                        if (employeeresults[i].first_name + " " + employeeresults[i].last_name === answer.whatEmployee)
+                            employeeUpdate = employeeresults[i].id
+                    }
+
+                    for (var i = 0; i < roleresults.length; i++) {
+                        if (roleresults[i].title === answer.whatRole) {
+                            roleId = roleresults[i].id
+                        }
+                    }
+
+                    connection.query(
+                        `UPDATE employees SET ? WHERE ?`,
+                        [
+                            {
+                                role_id: roleId
+                            },
+                            {
+                                id: employeeUpdate
+                            }
+                        ],
+                        function (err) {
+                            if (err) throw err;
+                            console.log("Employee Updated!");
+                            start();
+                        }
+                    );
+                });
+        });
     });
 }
 
